@@ -21,13 +21,12 @@ import org.htmlparser.util.SimpleNodeIterator;
  *
  * @author bmayr
  */
-
 // Recursive Action for forkJoinFramework from Java7
-
 public class LinkFinderAction extends RecursiveAction {
 
     private String url;
     private ILinkHandler cr;
+    private List<RecursiveAction> list = new ArrayList<>();
     /**
      * Used for statistics
      */
@@ -46,7 +45,7 @@ public class LinkFinderAction extends RecursiveAction {
             System.exit(0);
         }
         NodeFilter hrefNodeFilter = (Node node) -> node.getText().contains("href=\"http");
-            if (!cr.visited(url)) {
+        if (!cr.visited(url)) {
             cr.addVisited(url);
             System.out.println(url);
             try {
@@ -57,26 +56,14 @@ public class LinkFinderAction extends RecursiveAction {
                 SimpleNodeIterator it = nodes.elements();
                 while (it.hasMoreNodes()) {
                     Node node = it.nextNode();
-                    try{
                         String[] parts = node.getText().split("\"http");
-                    String temp = "http" + parts[1];
-                    temp = temp.split("\"")[0];
-//                    System.out.println(temp);
-//                    cr.queueLink(temp);
-                    }catch(Exception e){
-                        
-                    }
+                        String temp = "http" + parts[1];
+                        temp = temp.split("\"")[0];
+                        list.add(new LinkFinderAction(temp, cr));
                 }
-            } catch (Exception ex) {}
-        }      
-        // ToDo:
-        // 1. if crawler has not visited url yet:
-        // 2. Create new list of recursiveActions
-        // 3. Parse url
-        // 4. extract all links from url
-        // 5. add new Action for each sublink
-        // 6. if size of crawler exceeds 500 -> print elapsed time for statistics
-        // -> Do not forget to call ìnvokeAll on the actions!      
+            } catch (Exception ex) {
+            }
+            invokeAll(list);
+        }   
     }
 }
-
