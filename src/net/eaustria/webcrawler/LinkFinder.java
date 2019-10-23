@@ -38,36 +38,34 @@ public class LinkFinder implements Runnable {
     }
 
     private void getSimpleLinks(String url) {
-        NodeFilter hrefNodeFilter = (Node node) -> node.getText().contains("a href=\"http");
-        
-        if(!linkHandler.visited(url)){
+        if (linkHandler.size() >= 500) {
+            System.out.println(System.nanoTime() - t0);
+            System.out.println(linkHandler.size());
+            System.exit(0);
+        }
+        NodeFilter hrefNodeFilter = (Node node) -> node.getText().contains("href=\"http");
+            if (!linkHandler.visited(url)) {
+            linkHandler.addVisited(url);
+            System.out.println(url);
             try {
-                linkHandler.queueLink(url);
                 URL nurl = new URL(url);
                 Parser parser = new Parser(nurl.openConnection());
                 NodeList nodes = parser.extractAllNodesThatMatch(hrefNodeFilter);
-                
+
                 SimpleNodeIterator it = nodes.elements();
-                while(it.hasMoreNodes()){
+                while (it.hasMoreNodes()) {
                     Node node = it.nextNode();
-                    System.out.println(node.getText());
+                    try{
+                        String[] parts = node.getText().split("\"http");
+                    String temp = "http" + parts[1];
+                    temp = temp.split("\"")[0];
+//                    System.out.println(temp);
+                    linkHandler.queueLink(temp);
+                    }catch(Exception e){
+                        
+                    }
                 }
-                
-            } catch (Exception ex) {
-                Logger.getLogger(LinkFinder.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        linkHandler.addVisited(url);
-        if(linkHandler.size() >= 500){
-            System.out.println(System.nanoTime() - t0);
-        }
-        // ToDo: Implement
-        // 1. if url not already visited, visit url with linkHandler
-        // 2. get url and Parse Website
-        // 3. extract all URLs and add url to list of urls which should be visited
-        //    only if link is not empty and url has not been visited before
-        // 4. If size of link handler equals 500 -> print time elapsed for statistics               
-        
+            } catch (Exception ex) {}
+        }      
     }
 }
-

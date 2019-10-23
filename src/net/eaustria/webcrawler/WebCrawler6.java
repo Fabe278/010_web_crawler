@@ -48,7 +48,7 @@ public class WebCrawler6 implements ILinkHandler {
     }
 
     private void startNewThread(String link) throws Exception {
-        execService.submit(new LinkFinder(url, this));
+        execService.submit(new LinkFinder(link, this));
         // ToDo: Use executer Service to start new LinkFinder Task!
     }
 
@@ -60,6 +60,6 @@ public class WebCrawler6 implements ILinkHandler {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        new WebCrawler6("http://sickinger-solutions.at/", 64).startCrawling();
+        new WebCrawler6("https://www.orf.at/", 64).startCrawling();
     }
 }
