@@ -24,8 +24,7 @@ public class WebCrawler6 implements ILinkHandler {
 
     public WebCrawler6(String startingURL, int maxThreads) {
         this.url = startingURL;
-        // ToDo: Register a ThreadPool with "maxThreads" for execService
-        
+        execService = Executors.newFixedThreadPool(maxThreads);
     }
 
     @Override
@@ -49,8 +48,8 @@ public class WebCrawler6 implements ILinkHandler {
     }
 
     private void startNewThread(String link) throws Exception {
+        execService.submit(new LinkFinder(url, this));
         // ToDo: Use executer Service to start new LinkFinder Task!
-        
     }
 
     private void startCrawling() throws Exception {        
@@ -61,6 +60,6 @@ public class WebCrawler6 implements ILinkHandler {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        new WebCrawler6("http://www.orf.at", 64).startCrawling();
+        new WebCrawler6("http://sickinger-solutions.at/", 64).startCrawling();
     }
 }

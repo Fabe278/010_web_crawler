@@ -37,6 +37,9 @@ public class LinkFinderAction extends RecursiveAction {
 
     @Override
     public void compute() {
+        if(!cr.visited(url)){
+            
+        }
         // ToDo:
         // 1. if crawler has not visited url yet:
         // 2. Create new list of recursiveActions

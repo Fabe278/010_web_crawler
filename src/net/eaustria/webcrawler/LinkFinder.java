@@ -10,12 +10,13 @@ package net.eaustria.webcrawler;
  * @author bmayr
  */
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.htmlparser.Node;
+import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
-import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
-import java.util.ArrayList;
-import java.util.List;
+import org.htmlparser.util.SimpleNodeIterator;
 
 public class LinkFinder implements Runnable {
 
@@ -27,7 +28,8 @@ public class LinkFinder implements Runnable {
     private static final long t0 = System.nanoTime();
 
     public LinkFinder(String url, ILinkHandler handler) {
-        //ToDo: Implement Constructor
+        this.url = url;
+        this.linkHandler = handler;
     }
 
     @Override
@@ -36,6 +38,29 @@ public class LinkFinder implements Runnable {
     }
 
     private void getSimpleLinks(String url) {
+        NodeFilter hrefNodeFilter = (Node node) -> node.getText().contains("a href=\"http");
+        
+        if(!linkHandler.visited(url)){
+            try {
+                linkHandler.queueLink(url);
+                URL nurl = new URL(url);
+                Parser parser = new Parser(nurl.openConnection());
+                NodeList nodes = parser.extractAllNodesThatMatch(hrefNodeFilter);
+                
+                SimpleNodeIterator it = nodes.elements();
+                while(it.hasMoreNodes()){
+                    Node node = it.nextNode();
+                    System.out.println(node.getText());
+                }
+                
+            } catch (Exception ex) {
+                Logger.getLogger(LinkFinder.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        linkHandler.addVisited(url);
+        if(linkHandler.size() >= 500){
+            System.out.println(System.nanoTime() - t0);
+        }
         // ToDo: Implement
         // 1. if url not already visited, visit url with linkHandler
         // 2. get url and Parse Website
