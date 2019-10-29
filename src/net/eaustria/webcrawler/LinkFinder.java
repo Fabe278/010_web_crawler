@@ -9,13 +9,16 @@ package net.eaustria.webcrawler;
  *
  * @author bmayr
  */
+import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
+import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 import org.htmlparser.util.SimpleNodeIterator;
 
 public class LinkFinder implements Runnable {
@@ -39,33 +42,31 @@ public class LinkFinder implements Runnable {
 
     private void getSimpleLinks(String url) {
         if (linkHandler.size() >= 500) {
-            System.out.println(System.nanoTime() - t0);
-            System.out.println(linkHandler.size());
+            System.out.println("Laufzeit: " + (System.nanoTime() - t0));
+            System.out.println("Anzahl der Links" + linkHandler.size());
             System.exit(0);
         }
-        NodeFilter hrefNodeFilter = (Node node) -> node.getText().contains("href=\"http");
-            if (!linkHandler.visited(url)) {
-            linkHandler.addVisited(url);
-            System.out.println(url);
+        if (!linkHandler.visited(url)) {
+
             try {
                 URL nurl = new URL(url);
                 Parser parser = new Parser(nurl.openConnection());
-                NodeList nodes = parser.extractAllNodesThatMatch(hrefNodeFilter);
-
-                SimpleNodeIterator it = nodes.elements();
+                NodeList nodes = parser.extractAllNodesThatMatch((Node node) -> node.getText().contains("href=\"http"));
+                NodeIterator it = nodes.elements();
                 while (it.hasMoreNodes()) {
                     Node node = it.nextNode();
-                    try{
-                        String[] parts = node.getText().split("\"http");
-                    String temp = "http" + parts[1];
-                    temp = temp.split("\"")[0];
-//                    System.out.println(temp);
-                    linkHandler.queueLink(temp);
-                    }catch(Exception e){
-                        
+                    String[] parts = node.getText().split("\"http");
+                    String newurl = "http" + parts[1];
+                    newurl = newurl.split("\"")[0];
+                    try {
+                        linkHandler.queueLink(newurl);
+                    } catch (Exception ex) {
                     }
                 }
-            } catch (Exception ex) {}
-        }      
+                linkHandler.addVisited(url);
+                System.out.println(url);
+            } catch (IOException | ParserException ex) {
+            }
+        }
     }
 }
