@@ -50,7 +50,7 @@ public class LinkFinderAction extends RecursiveAction {
         NodeFilter hrefNodeFilter = (Node node) -> node.getText().contains("a href=\"http");
         if (!cr.visited(url)) {
             cr.addVisited(url);
-//            System.out.println(url);
+            System.out.println(url);
             try {
                 URL nurl = new URL(url);
                 Parser parser = new Parser(nurl.openConnection());

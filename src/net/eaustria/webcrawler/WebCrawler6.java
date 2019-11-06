@@ -5,11 +5,19 @@
  */
 package net.eaustria.webcrawler;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -17,6 +25,7 @@ import java.util.concurrent.Executors;
  */
 public class WebCrawler6 implements ILinkHandler {
 
+    private String csvdateiname;
     private final Collection<String> visitedLinks = Collections.synchronizedSet(new HashSet<String>());
 //    private final Collection<String> visitedLinks = Collections.synchronizedList(new ArrayList<String>());
     private String url;
@@ -52,14 +61,35 @@ public class WebCrawler6 implements ILinkHandler {
         // ToDo: Use executer Service to start new LinkFinder Task!
     }
 
-    private void startCrawling() throws Exception {        
+    private void startCrawling() throws Exception {
+        createFile();
         startNewThread(this.url);
+
     }
 
     /**
      * @param args the command line arguments
+     * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
         new WebCrawler6("https://www.orf.at/", 64).startCrawling();
+    }
+
+    public void createFile() {
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+        Date date = new Date();
+        csvdateiname = "CrawlerRun_" + df.format(date) + ".csv";
+        
+        File file = new File(csvdateiname);
+        try {
+            file.createNewFile();
+        } catch (IOException ex) {
+            Logger.getLogger(WebCrawler6.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    @Override
+    public String getCsvDateiName(){
+        return csvdateiname;
     }
 }

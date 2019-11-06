@@ -40,4 +40,10 @@ public interface ILinkHandler {
      * @param link 
      */
     void addVisited(String link);
+    
+    /**
+     * Returns the name of the CSV File
+     * @return 
+     */
+    String getCsvDateiName();
 }
